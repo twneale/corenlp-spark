@@ -34,12 +34,20 @@ object SparkJob {
           pipeline.xmlPrint(document, output_stream)
           return output_stream.toString("utf8");
         }
+
+      def processJSON(jsonstring: String): String = {
+          val json: JsValue = Json.parse(jsonstring)
+          val text = (json \ "text").toString()
+          val xml = getXML(text)
+          var result = json.as[JsObject] - "text"
+          result = result.as[JsObject] + ("xml" -> JsString(xml))
+          return result.toString()
+        }
       }
 
     var data = sc.textFile(input)
     data = data.repartition(numpartitions)
-    val xml = data.map(s => CoreNLP.getXML(s))
+    val xml = data.map(s => CoreNLP.processJSON(s))
     xml.saveAsTextFile(output)
     }
 }
-
