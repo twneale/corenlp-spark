@@ -26,6 +26,7 @@ object SparkJob {
     props.setProperty("annotators", annotators)
     object CoreNLP {
       @transient lazy val pipeline = new StanfordCoreNLP(props)
+
       def getXML(sentence: String): String = {
           val document = new Annotation(sentence)
           pipeline.annotate(document)
