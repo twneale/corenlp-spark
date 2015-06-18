@@ -17,7 +17,8 @@ object SparkJob {
     val annotators = args(0)
     val input = args(1)
     val output = args(2)
-    val numpartitions = args(3).toInt
+    val key = args(3)
+    val numpartitions = args(4).toInt
 
     val conf = new SparkConf()
     conf.setAppName(s"CoreNLP($annotators) - $input - $output")
@@ -37,9 +38,8 @@ object SparkJob {
 
       def processJSON(jsonstring: String): String = {
           val json: JsValue = Json.parse(jsonstring)
-          val text = (json \ "text").toString()
+          val text = (json \ key).toString()
           val xml = getXML(text)
-          var result = json.as[JsObject] - "text"
           result = result.as[JsObject] + ("xml" -> JsString(xml))
           return result.toString()
         }
