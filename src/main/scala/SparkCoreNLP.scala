@@ -40,13 +40,15 @@ object SparkJob {
           val json: JsValue = Json.parse(jsonstring)
           val text = (json \ key).toString()
           val xml = getXML(text)
-          result = result.as[JsObject] + ("xml" -> JsString(xml))
+          val result = json.as[JsObject] + ("xml" -> JsString(xml))
           return result.toString()
         }
       }
 
     var data = sc.textFile(input)
-    data = data.repartition(numpartitions)
+    if (0 < numpartitions){
+        data = data.repartition(numpartitions)
+      }
     val xml = data.map(s => CoreNLP.processJSON(s))
     xml.saveAsTextFile(output)
     }
